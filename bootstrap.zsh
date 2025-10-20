@@ -194,6 +194,70 @@ else
 fi
 
 ###############################################################################
+# 🔐 GIT USER CONFIGURATION WITH GITHUB
+###############################################################################
+
+log "Configuring Git user information from GitHub..."
+if command -v gh >/dev/null 2>&1; then
+  # Check if gh is authenticated
+  if ! gh auth status >/dev/null 2>&1; then
+    log "GitHub CLI is not authenticated. Starting authentication..."
+    gh auth login
+  fi
+
+  # Verify authentication succeeded
+  if gh auth status >/dev/null 2>&1; then
+    gh_login=$(gh api user --jq .login 2>/dev/null)
+    gh_name=$(gh api user --jq .name 2>/dev/null)
+
+    if [ -n "${gh_login}" ]; then
+      # Use GitHub name if available, otherwise use login
+      git_name="${gh_name:-$gh_login}"
+      git config --global user.name "${git_name}"
+      git config --global user.email "${gh_login}@users.noreply.github.com"
+      log "Git user configured: ${git_name} <${gh_login}@users.noreply.github.com>"
+    else
+      log "⚠️  Could not retrieve GitHub user information"
+    fi
+  else
+    log "⚠️  GitHub authentication failed. Please run 'gh auth login' manually."
+  fi
+else
+  log "⚠️  GitHub CLI (gh) not found. Skipping Git user configuration."
+fi
+
+###############################################################################
+# 🔐 GIT COMMIT SIGNING WITH 1PASSWORD
+###############################################################################
+
+log "Configuring Git commit signing with 1Password..."
+git config --global gpg.format ssh
+git config --global commit.gpgsign true
+git config --global gpg.ssh.program "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+# Set up allowed signers file for SSH signature verification
+ssh_dir="${HOME}/.ssh"
+allowed_signers="${ssh_dir}/allowed_signers"
+if [ ! -d "${ssh_dir}" ]; then
+  mkdir -p "${ssh_dir}"
+fi
+
+# Get SSH key from 1Password and configure signing key
+if [ -S "${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" ]; then
+  ssh_key=$(SSH_AUTH_SOCK="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" ssh-add -L 2>/dev/null | grep -i "git" | head -n1)
+  if [ -n "${ssh_key}" ]; then
+    git config --global user.signingkey "${ssh_key}"
+    # Create allowed_signers file with user's email and SSH key
+    user_email=$(git config --global user.email 2>/dev/null || echo "")
+    if [ -n "${user_email}" ]; then
+      echo "${user_email} ${ssh_key}" > "${allowed_signers}"
+      git config --global gpg.ssh.allowedSignersFile "${allowed_signers}"
+      log "Git commit signing configured with 1Password SSH key"
+    fi
+  fi
+fi
+
+###############################################################################
 # 🌟 STARSHIP PROMPT INITIALIZATION
 ###############################################################################
 if command -v starship &>/dev/null; then

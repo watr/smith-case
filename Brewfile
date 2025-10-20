@@ -1,4 +1,5 @@
 brew "starship"
+brew "gh"
 cask "font-fira-code-nerd-font"
 cask "coteditor"
 cask "warp"
