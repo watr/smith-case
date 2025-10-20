@@ -1,0 +1,5 @@
+brew "starship"
+cask "font-fira-code-nerd-font"
+cask "coteditor"
+cask "warp"
+brew "micro"
