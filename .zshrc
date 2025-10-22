@@ -56,6 +56,26 @@ export VISUAL='micro'
 ###############################################################################
 # Utility aliases and helper functions for daily use.
 
+# 🔹 cot
+# Wrapper for CotEditor's bundled CLI.
+# Behaves like the real "cot" command without creating a symlink.
+# Example:
+#   % cot file.txt
+#   (opens file.txt in CotEditor)
+function cot() {
+    local app="/Applications/CotEditor.app"
+    local cli="$app/Contents/SharedSupport/bin/cot"
+
+    if [[ -x "$cli" ]]; then
+        "$cli" "$@"
+        return $?
+    else
+        echo "❌ CotEditorのcotコマンドが見つかりませんでした。" >&2
+        echo "   CotEditor.app が /Applications にあるか確認してください。" >&2
+        return 1
+    fi
+}
+
 # 🔹 smbname2ip
 # Resolve an SMB machine name to its IP address.
 # Example:
