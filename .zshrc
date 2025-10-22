@@ -86,35 +86,79 @@ function brewdump() {
     brew bundle dump --file=/dev/stdout
 }
 
-# Compare two list files and show additions (+) and deletions (-)
+# Compare two list files and show additions (+) and deletions (-) with colors
 # Usage:
-#   % listdiff old.txt new.txt
-#   % listdiff old.txt new.txt --added     # only show added lines
-#   % listdiff old.txt new.txt --removed   # only show removed lines
-#
-# Notes:
-# - Files are automatically sorted internally (no need to pre-sort).
-# - Output is colorized: red (-) = removed, green (+) = added.
-# - For large files, consider LC_ALL=C for faster sorting.
+#   % listdiff old.txt new.txt [--added] [--removed] [--print]
+# Examples:
+#   % listdiff Brewfile <(brewdump)
+#   % listdiff Brewfile <(brewdump) --added
+#   % listdiff Brewfile <(brewdump) --removed --print
 function listdiff() {
   if [[ $# -lt 2 ]]; then
-    echo "usage: listdiff old.txt new.txt [--added|--removed]"
+    echo "usage: listdiff old.txt new.txt [--added] [--removed] [--print]"
     return 1
   fi
 
   local old="$1"
   local new="$2"
-  local mode="$3"
-  local flag=""
+  shift 2
+  local show_added=true
+  local show_removed=true
+  local print_sorted=false
 
-  case "$mode" in
-    --added)   flag="-13" ;;  # show only additions
-    --removed) flag="-23" ;;  # show only deletions
-  esac
+  # Parse flags
+  for arg in "$@"; do
+    case "$arg" in
+      --added)
+        show_removed=false ;;
+      --removed)
+        show_added=false ;;
+      --print)
+        print_sorted=true ;;
+      *)
+        echo "error: unknown option '$arg'" >&2
+        return 1 ;;
+    esac
+  done
 
-  comm $flag <(LC_ALL=C sort "$old") <(LC_ALL=C sort "$new") \
-    | sed -E 's/^\t(.*)/\x1b[32m+\1\x1b[0m/; s/^(.*)/\x1b[31m-\1\x1b[0m/'
+  # ANSI colors (Git standard style)
+  local red="\033[31m"
+  local green="\033[32m"
+  local reset="\033[0m"
+
+  # Normalize & sort each input (remove empty lines and comments)
+  local old_sorted new_sorted
+  old_sorted=$(awk '!/^($|#)/ {print}' "$old" | sort -u)
+  new_sorted=$(awk '!/^($|#)/ {print}' "$new" | sort -u)
+
+  # Print sorted output
+  if $print_sorted; then
+    echo "----- OLD (sorted) -----"
+    printf '%s\n' "$old_sorted"
+    echo "----- NEW (sorted) -----"
+    printf '%s\n' "$new_sorted"
+    echo "------------------------"
+  fi
+
+  # Removed (-): lines in old but not in new
+  if $show_removed; then
+    while IFS= read -r line; do
+      if ! grep -Fxq "$line" <<<"$new_sorted"; then
+        printf "${red}-%s${reset}\n" "$line"
+      fi
+    done <<<"$old_sorted"
+  fi
+
+  # Added (+): lines in new but not in old
+  if $show_added; then
+    while IFS= read -r line; do
+      if ! grep -Fxq "$line" <<<"$old_sorted"; then
+        printf "${green}+%s${reset}\n" "$line"
+      fi
+    done <<<"$new_sorted"
+  fi
 }
+
 # Reload Zsh configuration (~/.zshrc)
 # Usage:
 #   % reload          # Reload the current Zsh configuration
