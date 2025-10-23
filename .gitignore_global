@@ -1,3 +1,139 @@
-# zsh
+###############################################################################
+# 🧠 macOS SYSTEM FILES
+###############################################################################
+# Finder metadata
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Icon file on directories
+Icon
+
+# macOS folder attributes
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
+# Temporary system files
+*.swp
+*.swo
+
+
+###############################################################################
+# 🧰 DEVELOPMENT ENVIRONMENT
+###############################################################################
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.old
+*.orig
+
+# Environment and secrets
+.env
+.env.*
+.secret
+*.key
+
+
+###############################################################################
+# 🍎 XCODE / SWIFT / APPLE PROJECTS
+###############################################################################
+# Build products
+build/
+DerivedData/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.swiftpm/
+*.playgroundbook/
+
+# Swift Package Manager
+.build/
+Package.resolved
+
+
+###############################################################################
+# 🪄 EDITOR / TOOLING
+###############################################################################
+# VSCode
+.vscode/
+.history/
+.code-workspace
+
+# JetBrains (AppCode, CLion, etc.)
+.idea/
+*.iml
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# BBEdit / TextWrangler
+*.bbprojectd/
+*.bbproject/
+
+
+###############################################################################
+# 🧩 NODE / JAVASCRIPT
+###############################################################################
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+coverage/
+.cache/
+
+
+###############################################################################
+# 🐍 PYTHON
+###############################################################################
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+*.egg
+.env/
+.venv/
+venv/
+
+
+###############################################################################
+# ⚙️ MISC BUILD TOOLS
+###############################################################################
+# macOS build outputs (make, cmake, etc.)
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.exe
+*.dSYM/
+
+# Dependency managers
+Pods/
+Carthage/
+fastlane/report.xml
+fastlane/test_output/
+
+
+###############################################################################
+# 🧱 LOCAL CONFIG / MACHINE SPECIFIC
+###############################################################################
+# User-specific IDE settings
+*.user
+*.userprefs
+*.local
+
+# Temporary backups
+*~
+~$*
+
+# Zsh history and local AI tool configs
 .zsh_history
 **/.claude/settings.local.json
