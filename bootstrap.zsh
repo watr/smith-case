@@ -181,6 +181,9 @@ install_with_prompt "Codex" "npm install -g @openai/codex" "codex"
 # Cursor (brew cask)
 install_with_prompt "Cursor" "brew install --cask cursor" "cursor"
 
+# Gemini CLI (npm)
+install_with_prompt "Gemini CLI" "npm install -g @google/gemini-cli" "gemini"
+
 ###############################################################################
 # 📦 BREWFILE INSTALLATION
 ###############################################################################
