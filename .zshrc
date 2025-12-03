@@ -198,3 +198,10 @@ function reload() {
 
 # Short alias for reload
 alias rr='reload'
+
+# Antigravity (if installed)
+[ -d "$HOME/.antigravity/antigravity/bin" ] && export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
+
+
+# Cursor (if installed)
+[ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
