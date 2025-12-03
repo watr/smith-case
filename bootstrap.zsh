@@ -172,8 +172,8 @@ install_with_prompt() {
   esac
 }
 
-# Claude Code (npm)
-install_with_prompt "Claude Code" "npm install -g @anthropic-ai/claude-code" "claude"
+# Claude Code (native install)
+install_with_prompt "Claude Code" "curl -fsSL https://claude.ai/install.sh | bash" "claude"
 
 # Codex (npm)
 install_with_prompt "Codex" "npm install -g @openai/codex" "codex"
