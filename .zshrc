@@ -205,3 +205,10 @@ alias rr='reload'
 
 # Cursor (if installed)
 [ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
+
+# bun (if installed)
+if [ -d "$HOME/.bun" ]; then
+  export BUN_INSTALL="$HOME/.bun"
+  export PATH="$BUN_INSTALL/bin:$PATH"
+  source "$HOME/.bun/_bun"
+fi

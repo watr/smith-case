@@ -1,6 +1,11 @@
 #!/bin/zsh
 set -eu
 
+# Ensure hook arrays exist before mise/starship add entries
+typeset -ga precmd_functions
+typeset -ga preexec_functions
+typeset -ga chpwd_functions
+
 ###############################################################################
 # 🏁 INITIAL SETUP
 ###############################################################################
