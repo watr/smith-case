@@ -1,4 +1,14 @@
 ###############################################################################
+# 🗂️  XDG CONFIG SETTINGS
+###############################################################################
+# Set XDG config directory only when XDG_CONFIG_HOME is not already defined.
+# Many tools (e.g. git, neovim, ghostty, micro) use this as the base path for
+# user-specific config files. Default to ~/.config to follow XDG conventions.
+if [ -z "${XDG_CONFIG_HOME:-}" ]; then
+  export XDG_CONFIG_HOME="$HOME/.config"
+fi
+
+###############################################################################
 # 🍺 HOMEBREW INITIALIZATION
 ###############################################################################
 if command -v brew &>/dev/null; then
@@ -50,6 +60,17 @@ setopt hist_verify
 export EDITOR='micro'
 export VISUAL='micro'
 
+###############################################################################
+# 📦  GHQ SETTINGS
+###############################################################################
+# Define ghq root path. Use external workspace if available.
+if command -v ghq >/dev/null 2>&1; then
+  if [ -d /Volumes/workspace ]; then
+    export GHQ_ROOT='/Volumes/workspace/src'
+  else
+    export GHQ_ROOT="$HOME/src"
+  fi
+fi
 
 ###############################################################################
 # ⚙️  ALIASES & FUNCTIONS
