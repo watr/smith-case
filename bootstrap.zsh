@@ -50,6 +50,29 @@ else
 fi
 
 ###############################################################################
+# 👻 LINK GHOSTTY CONFIGURATION
+###############################################################################
+
+local_ghostty_config="${script_dir}/ghostty/config"
+home_ghostty_dir="${HOME}/.config/ghostty"
+home_ghostty_config="${home_ghostty_dir}/config"
+
+if [ ! -d "$home_ghostty_dir" ]; then
+  mkdir -p "$home_ghostty_dir"
+fi
+
+if [ -f "$local_ghostty_config" ]; then
+  if [ -L "$home_ghostty_config" ] && [ "$(readlink "$home_ghostty_config")" = "$local_ghostty_config" ]; then
+    echo ">>> Ghostty config already linked: $home_ghostty_config → $local_ghostty_config"
+  else
+    echo ">>> Linking Ghostty config $home_ghostty_config → $local_ghostty_config ..."
+    ln -snf "$local_ghostty_config" "$home_ghostty_config"
+  fi
+else
+  echo ">>> ⚠️  Warning: Ghostty config not found at $local_ghostty_config. Skipped linking."
+fi
+
+###############################################################################
 # 🧰 XCODE COMMAND LINE TOOLS
 ###############################################################################
 
