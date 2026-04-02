@@ -127,6 +127,15 @@ function brewdump() {
     brew bundle dump --file=/dev/stdout
 }
 
+# 🔹 peek
+# Show stdin on the current terminal while passing it through unchanged.
+# Useful for checking piped output without interrupting the pipeline.
+# Example:
+#   % mycli | peek | pbcopy
+function peek() {
+    tee /dev/tty
+}
+
 # Compare two list files and show additions (+) and deletions (-) with colors
 # Usage:
 #   % listdiff old.txt new.txt [--added] [--removed] [--print]

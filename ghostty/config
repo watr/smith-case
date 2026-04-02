@@ -1,4 +1,4 @@
-auto-update-channel = tip
+auto-update-channel = stable
 window-padding-x = 12,6
 
 # `brew install --cask font-moralerspace`
