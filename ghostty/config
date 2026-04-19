@@ -1,8 +1,10 @@
 auto-update-channel = stable
 window-padding-x = 12,6
 
+# Fonts
 # `brew install --cask font-moralerspace`
 font-family = "Moralerspace Neon"
 font-size = 14
 
-theme = "Rose Pine Dawn"
+# Theme
+theme = "SeedFlip Coral"
