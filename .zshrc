@@ -57,8 +57,8 @@ setopt hist_verify
 # ✏️  EDITOR SETTINGS
 ###############################################################################
 # Define default text editors for command-line and GUI programs.
-export EDITOR='micro'
-export VISUAL='micro'
+export EDITOR='cot -n -w'
+export VISUAL='cot -n -w'
 
 ###############################################################################
 # 📦  GHQ SETTINGS
@@ -77,22 +77,24 @@ fi
 ###############################################################################
 # Utility aliases and helper functions for daily use.
 
-# 🔹 cot
+# 🔹 scot
 # Wrapper for CotEditor's bundled CLI.
-# Behaves like the real "cot" command without creating a symlink.
+# Opens files in a new CotEditor window and waits until that window closes.
+# Behaves like a lightweight "cot -w -n" helper without creating a symlink.
 # Example:
-#   % cot file.txt
-#   (opens file.txt in CotEditor)
-function cot() {
+#   % scot file.txt
+#   (opens file.txt in a new CotEditor window and waits)
+
+function scot() {
     local app="/Applications/CotEditor.app"
     local cli="$app/Contents/SharedSupport/bin/cot"
 
     if [[ -x "$cli" ]]; then
-        "$cli" "$@"
+        "$cli" -w -n "$@" 2>/dev/null
         return $?
     else
-        echo "❌ CotEditorのcotコマンドが見つかりませんでした。" >&2
-        echo "   CotEditor.app が /Applications にあるか確認してください。" >&2
+        echo "❌ CotEditor の cot コマンドが見つかりませんでした。" >&2
+        echo "   /Applications/CotEditor.app にあるか確認してください。" >&2
         return 1
     fi
 }
