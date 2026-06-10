@@ -214,7 +214,6 @@ function listdiff() {
 # Reload Zsh configuration (~/.zshrc)
 # Usage:
 #   % reload          # Reload the current Zsh configuration
-#   % rr              # Short alias for reload (faster to type and avoids conflicts)
 #
 # Example:
 #   % reload
@@ -227,9 +226,6 @@ function reload() {
   hash -r
   echo "✅ Reloaded"
 }
-
-# Short alias for reload
-alias rr='reload'
 
 # Antigravity (if installed)
 [ -d "$HOME/.antigravity/antigravity/bin" ] && export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
