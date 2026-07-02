@@ -52,13 +52,22 @@ setopt share_history
 # zsh: perform history expansion and reload the line into the editing buffer
 setopt hist_verify
 
-
 ###############################################################################
 # ✏️  EDITOR SETTINGS
 ###############################################################################
 # Define default text editors for command-line and GUI programs.
-export EDITOR='cot -n -w'
-export VISUAL='cot -n -w'
+# Prefer CotEditor's CLI if available; otherwise fall back to micro.
+
+if command -v cot >/dev/null 2>&1; then
+  export EDITOR='cot -n -w'
+  export VISUAL='cot -n -w'
+elif command -v micro >/dev/null 2>&1; then
+  export EDITOR='micro'
+  export VISUAL='micro'
+else
+  export EDITOR='vi'
+  export VISUAL='vi'
+fi
 
 ###############################################################################
 # 📦  GHQ SETTINGS
@@ -76,28 +85,6 @@ fi
 # ⚙️  ALIASES & FUNCTIONS
 ###############################################################################
 # Utility aliases and helper functions for daily use.
-
-# 🔹 scot
-# Wrapper for CotEditor's bundled CLI.
-# Opens files in a new CotEditor window and waits until that window closes.
-# Behaves like a lightweight "cot -w -n" helper without creating a symlink.
-# Example:
-#   % scot file.txt
-#   (opens file.txt in a new CotEditor window and waits)
-
-function scot() {
-    local app="/Applications/CotEditor.app"
-    local cli="$app/Contents/SharedSupport/bin/cot"
-
-    if [[ -x "$cli" ]]; then
-        "$cli" -w -n "$@" 2>/dev/null
-        return $?
-    else
-        echo "❌ CotEditor の cot コマンドが見つかりませんでした。" >&2
-        echo "   /Applications/CotEditor.app にあるか確認してください。" >&2
-        return 1
-    fi
-}
 
 # 🔹 smbname2ip
 # Resolve an SMB machine name to its IP address.
@@ -138,79 +125,6 @@ function peek() {
     tee /dev/tty
 }
 
-# Compare two list files and show additions (+) and deletions (-) with colors
-# Usage:
-#   % listdiff old.txt new.txt [--added] [--removed] [--print]
-# Examples:
-#   % listdiff Brewfile <(brewdump)
-#   % listdiff Brewfile <(brewdump) --added
-#   % listdiff Brewfile <(brewdump) --removed --print
-function listdiff() {
-  if [[ $# -lt 2 ]]; then
-    echo "usage: listdiff old.txt new.txt [--added] [--removed] [--print]"
-    return 1
-  fi
-
-  local old="$1"
-  local new="$2"
-  shift 2
-  local show_added=true
-  local show_removed=true
-  local print_sorted=false
-
-  # Parse flags
-  for arg in "$@"; do
-    case "$arg" in
-      --added)
-        show_removed=false ;;
-      --removed)
-        show_added=false ;;
-      --print)
-        print_sorted=true ;;
-      *)
-        echo "error: unknown option '$arg'" >&2
-        return 1 ;;
-    esac
-  done
-
-  # ANSI colors (Git standard style)
-  local red="\033[31m"
-  local green="\033[32m"
-  local reset="\033[0m"
-
-  # Normalize & sort each input (remove empty lines and comments)
-  local old_sorted new_sorted
-  old_sorted=$(awk '!/^($|#)/ {print}' "$old" | sort -u)
-  new_sorted=$(awk '!/^($|#)/ {print}' "$new" | sort -u)
-
-  # Print sorted output
-  if $print_sorted; then
-    echo "----- OLD (sorted) -----"
-    printf '%s\n' "$old_sorted"
-    echo "----- NEW (sorted) -----"
-    printf '%s\n' "$new_sorted"
-    echo "------------------------"
-  fi
-
-  # Removed (-): lines in old but not in new
-  if $show_removed; then
-    while IFS= read -r line; do
-      if ! grep -Fxq "$line" <<<"$new_sorted"; then
-        printf "${red}-%s${reset}\n" "$line"
-      fi
-    done <<<"$old_sorted"
-  fi
-
-  # Added (+): lines in new but not in old
-  if $show_added; then
-    while IFS= read -r line; do
-      if ! grep -Fxq "$line" <<<"$old_sorted"; then
-        printf "${green}+%s${reset}\n" "$line"
-      fi
-    done <<<"$new_sorted"
-  fi
-}
-
 # Reload Zsh configuration (~/.zshrc)
 # Usage:
 #   % reload          # Reload the current Zsh configuration
@@ -226,10 +140,6 @@ function reload() {
   hash -r
   echo "✅ Reloaded"
 }
-
-# Antigravity (if installed)
-[ -d "$HOME/.antigravity/antigravity/bin" ] && export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
-
 
 # Cursor (if installed)
 [ -d "$HOME/.local/bin" ] && export PATH="$HOME/.local/bin:$PATH"
