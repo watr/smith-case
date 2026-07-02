@@ -86,6 +86,61 @@ fi
 ###############################################################################
 # Utility aliases and helper functions for daily use.
 
+# 🔹 repos
+# Print local repository paths or remote repository URLs.
+#
+# Subcommands:
+#   % repos
+#     List local repository paths managed by ghq (default).
+#
+#   % repos local
+#     Same as above.
+#
+#   % repos github
+#     List all GitHub repositories that the authenticated GitHub user can
+#     access (owned, collaborator, or organization member).
+#
+# Requirements:
+#   - ghq
+#   - GitHub CLI (gh) authenticated with `gh auth login`
+#
+function _repos_local() {
+    echo "# local: repositories managed by ghq"
+
+    ghq list -p
+}
+
+function _repos_github() {
+    echo "# github: GitHub repositories accessible by the authenticated user"
+
+    gh api --paginate \
+        '/user/repos?affiliation=owner,collaborator,organization_member&visibility=all&per_page=100' \
+        --jq '.[].html_url'
+}
+
+function repos() {
+    case "${1:-local}" in
+        local)
+            _repos_local
+            ;;
+
+        github)
+            _repos_github
+            ;;
+
+        *)
+            cat <<EOF
+Usage: repos [subcommand]
+
+Subcommands:
+  local     List local repository paths managed by ghq (default)
+  github    List GitHub repositories you can access
+EOF
+            return 1
+            ;;
+    esac
+}
+
 # 🔹 smbname2ip
 # Resolve an SMB machine name to its IP address.
 # Example:
