@@ -72,6 +72,35 @@ else
   echo ">>> ⚠️  Warning: Ghostty config not found at $local_ghostty_config. Skipped linking."
 fi
 
+
+###############################################################################
+# 🤖 LINK CODEX SKILLS
+###############################################################################
+
+# Ensure ~/.agents/skills/git-commit points to the one located next to bootstrap.zsh.
+# This keeps the Codex git-commit skill managed within the same directory.
+local_git_commit_skill="${script_dir}/.agents/skills/git-commit"
+home_skills_dir="${HOME}/.agents/skills"
+home_git_commit_skill="${home_skills_dir}/git-commit"
+
+if [ -f "${local_git_commit_skill}/SKILL.md" ]; then
+  if [ ! -d "$home_skills_dir" ]; then
+    mkdir -p "$home_skills_dir"
+  fi
+
+  if [ -L "$home_git_commit_skill" ] && [ "$(readlink "$home_git_commit_skill")" = "$local_git_commit_skill" ]; then
+    echo ">>> git-commit skill already linked: $home_git_commit_skill → $local_git_commit_skill"
+  elif [ -e "$home_git_commit_skill" ] && [ ! -L "$home_git_commit_skill" ]; then
+    echo ">>> ⚠️  Warning: $home_git_commit_skill already exists and is not a symlink. Skipped linking."
+  else
+    echo ">>> Linking git-commit skill $home_git_commit_skill → $local_git_commit_skill ..."
+    rm -f "$home_git_commit_skill"
+    ln -s "$local_git_commit_skill" "$home_git_commit_skill"
+  fi
+else
+  echo ">>> ⚠️  Warning: ${local_git_commit_skill}/SKILL.md not found. Skipped linking."
+fi
+
 ###############################################################################
 # 🧰 XCODE COMMAND LINE TOOLS
 ###############################################################################
