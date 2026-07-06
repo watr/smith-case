@@ -296,9 +296,13 @@ if [ ! -d "${ssh_dir}" ]; then
   mkdir -p "${ssh_dir}"
 fi
 
-# Get SSH key from 1Password and configure signing key
-if [ -S "${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" ]; then
-  ssh_key=$(SSH_AUTH_SOCK="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock" ssh-add -L 2>/dev/null | grep -i "git" | head -n1)
+# Get SSH key from 1Password and configure signing key.
+# NOTE: filter on "sign"/"署名", not just "git" — some keys (e.g. the one
+# commented "GitHub Authentication") also match "git" but are for SSH auth,
+# not commit signing, and must not be picked here.
+op_agent_sock="${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+if [ -S "${op_agent_sock}" ]; then
+  ssh_key=$(SSH_AUTH_SOCK="${op_agent_sock}" ssh-add -L 2>/dev/null | grep -iE "(署名|sign)" | grep -viE "auth" | head -n1)
   if [ -n "${ssh_key}" ]; then
     git config --global user.signingkey "${ssh_key}"
     # Create allowed_signers file with user's email and SSH key
@@ -306,8 +310,10 @@ if [ -S "${HOME}/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
     if [ -n "${user_email}" ]; then
       echo "${user_email} ${ssh_key}" > "${allowed_signers}"
       git config --global gpg.ssh.allowedSignersFile "${allowed_signers}"
-      log "Git commit signing configured with 1Password SSH key"
+      log "Git commit signing configured with 1Password SSH key (signing key)"
     fi
+  else
+    log "⚠️  No 1Password SSH key tagged for signing (comment containing '署名' or 'sign') was found."
   fi
 fi
 
