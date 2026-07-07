@@ -1,0 +1,13 @@
+# Casks are split out so --no-upgrade can be applied only to apps/fonts.
+# Many GUI apps handled by cask have their own auto-update flow, so Homebrew should not upgrade installed casks here.
+# This installs missing casks while skipping upgrades for already installed ones:
+#   brew bundle install --file=Brewfile.casks --no-upgrade
+cask "font-fira-code-nerd-font"
+cask "chatgpt"
+cask "codex-app"
+cask "coteditor"
+cask "firefox"
+cask "ghostty"
+cask "1password"
+cask "1password-cli"
+cask "kaleidoscope"
