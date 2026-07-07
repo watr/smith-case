@@ -1,137 +1,60 @@
 ---
 name: git-commit
-description: "Use when preparing git commits, staging changes, reviewing staged diffs, splitting commits, writing commit messages, or checking AI agent attribution in commit messages."
+description: "Use when preparing git commits, staging changes, writing commit messages, checking signed commits, or pushing release branches and tags."
 ---
 
 # Git commit workflow
 
-Use this skill whenever you prepare, review, create, or suggest git commits.
+この skill は、commit の作成・分割・署名確認・push 前確認を行うときに使う。
 
-This skill covers:
+## 基本方針
 
-- Reviewing the working tree
-- Selecting files or hunks to stage
-- Splitting unrelated changes into separate commits
-- Writing commit messages
-- Checking whether AI agent attribution should be included
-- Running final pre-commit checks when appropriate
+- 明示的に「署名しない」と指示されていない限り、commit は必ず署名付きで作成する。
+- commit 作成時は原則として `git commit -S` を使う。
+- commit メッセージに AI / Agent / ツール名や「AIを使用した」「生成した」などの記述を含めない。
+- commit は「どのツールを使ったか」ではなく「何を変更したか」を記録する。
+- generated files、lockfile、framework、画像などを含める場合は、それが意図した変更か確認する。
 
-## Commit preparation
+## Commit 前の確認
 
-Before creating a commit:
+1. `git status --short --branch` で作業ツリーを確認する。
+2. `git diff` と `git diff --cached` で unstaged / staged の差分を確認する。
+3. 変更の目的が複数ある場合は commit を分ける。
+4. stage するファイルは明示的に選ぶ。`git add .` は使わない。
+5. 未追跡ファイルを含める場合は、今回の commit に必要か確認する。
+6. commit 前に必要な build / test / lint を実行または実行できない理由を確認する。
 
-1. Inspect the working tree.
-2. Review the relevant diffs.
-3. Identify the logical purpose of each change.
-4. Stage only the files or hunks that belong in the current commit.
-5. Keep each commit focused and reviewable.
+## Commit メッセージ
 
-Do not use:
+- 基本は日本語で、簡潔かつ具体的に書く。
+- 日本語で不自然になる場合のみ英語表現を使ってよい。
+- 内容が分かる短い件名にする。
+- AI / Agent / ツール名は書かない。
 
-```sh
-git add .
-```
+良い例:
 
-Prefer explicit staging, such as:
+- 1.7.0 のソースを追加
+- 最近の Xcode でビルドできるように修正
+- commit 署名ルールを追加
+- Fix null handling in payment service
 
-```sh
-git add path/to/file
-git add -p
-```
+悪い例:
 
-If the working tree contains unrelated changes, split them into separate commits.
+- 修正しました
+- AIで修正しました
+- Cursorで修正しました
+- Updated code
 
-If generated files, lockfiles, snapshots, or formatting-only changes are included, verify that they are intentional.
+## 署名確認
 
-## Commit message format
+- push 前に、push 対象の commit が署名済みで検証可能であることを確認する。
+- 未署名または署名検証できない commit は push しない。
+- repository に署名検証用の hook がある場合は最後の強制チェックとして残す。
+- hook が未設定の場合は repository の setup script を探して有効化する。
 
-Use this format:
+## Push / tag の注意
 
-```text
-<type>(<scope>): <summary>
-```
-
-Allowed types:
-
-- `feat`
-- `fix`
-- `refactor`
-- `test`
-- `docs`
-- `chore`
-
-Rules:
-
-- Use imperative mood.
-- Keep the summary under 72 characters.
-- Do not end the summary with a period.
-- Include a scope when the affected area is clear.
-- Keep the subject line specific to the staged change.
-- Do not mention implementation details that are not relevant to the commit history.
-
-Examples:
-
-```text
-feat(auth): add session refresh handling
-fix(api): handle missing user id
-docs(readme): document local setup
-refactor(worker): simplify retry scheduling
-test(auth): cover expired token flow
-chore(deps): update lockfile
-```
-
-## Commit body
-
-Use a commit body only when it adds useful context.
-
-Good reasons to add a body:
-
-- Explain why the change was made.
-- Document a non-obvious tradeoff.
-- Call out migration or compatibility concerns.
-- Explain risk, rollback, or operational impact.
-
-Do not use the body to restate the summary.
-
-## AI agent attribution
-
-Do not add AI agent attribution to commit messages by default.
-
-Avoid adding:
-
-- Agent names
-- AI assistant names
-- Tool names
-- `Generated-by:` trailers
-- `AI-assisted-by:` trailers
-- `Co-authored-by:` trailers for AI agents
-- Phrases such as “generated with”, “created by”, or “assisted by” followed by a specific agent name
-
-Rationale:
-
-A commit may include edits from multiple agents, tools, scripts, programs, formatters, and manual work. Naming only the agent used during the commit step can misrepresent how the final change was actually produced.
-
-Only include a specific agent name when there is an explicit reason to do so, such as:
-
-- The user explicitly requests it.
-- The repository policy requires it.
-- The commit is specifically about output from that agent.
-- The agent identity is materially relevant to the change history.
-- Omitting the attribution would be more misleading than including it.
-
-When in doubt, omit AI agent attribution.
-
-## Final check before committing
-
-Before running `git commit`, verify:
-
-- The staged diff matches the intended change.
-- No unrelated files are staged.
-- The commit is appropriately scoped.
-- The commit message follows the required format.
-- The summary is concise, imperative, and under 72 characters.
-- No unnecessary AI agent attribution is included.
-- Any generated files or lockfiles are intentional.
-- Any available relevant tests or checks have been considered.
-
-If the user asks to commit and there are multiple logical changes, propose or create separate commits rather than combining them into one broad commit.
+- branch 名や tag 名が release version を表す場合は、その version の意味に合う commit を指しているか確認する。
+- release tag は「その version のソース」を表す commit に付ける。
+- build 対応や hotfix が次 version 扱いなら、branch / tag 名も次 version に揃える。
+- remote branch の削除や tag の付け直しは履歴上の意味を変えるため、ユーザーの明示的な指示がある場合だけ行う。

@@ -74,31 +74,90 @@ fi
 
 
 ###############################################################################
-# 🤖 LINK CODEX SKILLS
+# 🤖 LINK AGENTS AND CODEX SKILLS
 ###############################################################################
 
-# Ensure ~/.agents/skills/git-commit points to the one located next to bootstrap.zsh.
-# This keeps the Codex git-commit skill managed within the same directory.
-local_git_commit_skill="${script_dir}/.agents/skills/git-commit"
-home_skills_dir="${HOME}/.agents/skills"
-home_git_commit_skill="${home_skills_dir}/git-commit"
+link_preserving_existing() {
+  local source_path=$1
+  local target_path=$2
+  local label=$3
 
-if [ -f "${local_git_commit_skill}/SKILL.md" ]; then
-  if [ ! -d "$home_skills_dir" ]; then
-    mkdir -p "$home_skills_dir"
-  fi
-
-  if [ -L "$home_git_commit_skill" ] && [ "$(readlink "$home_git_commit_skill")" = "$local_git_commit_skill" ]; then
-    echo ">>> git-commit skill already linked: $home_git_commit_skill → $local_git_commit_skill"
-  elif [ -e "$home_git_commit_skill" ] && [ ! -L "$home_git_commit_skill" ]; then
-    echo ">>> ⚠️  Warning: $home_git_commit_skill already exists and is not a symlink. Skipped linking."
+  if [ -L "$target_path" ] && [ "$(readlink "$target_path")" = "$source_path" ]; then
+    echo ">>> $label already linked: $target_path → $source_path"
+  elif [ -e "$target_path" ] || [ -L "$target_path" ]; then
+    echo ">>> ⚠️  Warning: $target_path already exists. Skipped linking $label."
   else
-    echo ">>> Linking git-commit skill $home_git_commit_skill → $local_git_commit_skill ..."
-    rm -f "$home_git_commit_skill"
-    ln -s "$local_git_commit_skill" "$home_git_commit_skill"
+    echo ">>> Linking $label $target_path → $source_path ..."
+    ln -s "$source_path" "$target_path"
   fi
+}
+
+local_agents_dir="${script_dir}/.agents"
+home_agents_dir="${HOME}/.agents"
+local_codex_agents_file="${script_dir}/.codex/AGENTS.md"
+home_codex_dir="${HOME}/.codex"
+home_codex_agents_file="${home_codex_dir}/AGENTS.md"
+local_claude_file="${script_dir}/.claude/CLAUDE.md"
+home_claude_dir="${HOME}/.claude"
+home_claude_file="${home_claude_dir}/CLAUDE.md"
+
+if [ -f "$local_codex_agents_file" ]; then
+  if [ ! -d "$home_codex_dir" ]; then
+    mkdir -p "$home_codex_dir"
+  fi
+
+  link_preserving_existing "$local_codex_agents_file" "$home_codex_agents_file" "Codex AGENTS.md"
 else
-  echo ">>> ⚠️  Warning: ${local_git_commit_skill}/SKILL.md not found. Skipped linking."
+  echo ">>> ⚠️  Warning: $local_codex_agents_file not found. Skipped linking Codex AGENTS.md."
+fi
+
+if [ -f "$local_claude_file" ]; then
+  if [ ! -d "$home_claude_dir" ]; then
+    mkdir -p "$home_claude_dir"
+  fi
+
+  link_preserving_existing "$local_claude_file" "$home_claude_file" "Claude CLAUDE.md"
+else
+  echo ">>> ⚠️  Warning: $local_claude_file not found. Skipped linking Claude CLAUDE.md."
+fi
+
+if [ -d "$local_agents_dir" ]; then
+  if [ ! -d "$home_agents_dir" ]; then
+    mkdir -p "$home_agents_dir"
+  fi
+
+  for local_agents_entry in "$local_agents_dir"/*(N); do
+    agents_entry_name=$(basename "$local_agents_entry")
+
+    case "$agents_entry_name" in
+      .DS_Store)
+        continue
+        ;;
+      skills)
+        home_skills_dir="${home_agents_dir}/skills"
+
+        if [ ! -d "$home_skills_dir" ]; then
+          mkdir -p "$home_skills_dir"
+        fi
+
+        for local_skill_dir in "$local_agents_entry"/*(N); do
+          skill_name=$(basename "$local_skill_dir")
+          home_skill_dir="${home_skills_dir}/${skill_name}"
+
+          if [ -f "${local_skill_dir}/SKILL.md" ]; then
+            link_preserving_existing "$local_skill_dir" "$home_skill_dir" "${skill_name} skill"
+          else
+            echo ">>> ⚠️  Warning: ${local_skill_dir}/SKILL.md not found. Skipped linking."
+          fi
+        done
+        ;;
+      *)
+        link_preserving_existing "$local_agents_entry" "${home_agents_dir}/${agents_entry_name}" ".agents/${agents_entry_name}"
+        ;;
+    esac
+  done
+else
+  echo ">>> ⚠️  Warning: $local_agents_dir not found. Skipped linking agents."
 fi
 
 ###############################################################################
