@@ -26,23 +26,26 @@ description: "Use when preparing git commits, staging changes, writing commit me
 
 ## Commit メッセージ
 
-- 基本は日本語で、簡潔かつ具体的に書く。
-- 日本語で不自然になる場合のみ英語表現を使ってよい。
-- 内容が分かる短い件名にする。
+- 基本は短い English の imperative subject にする。
+- 形式は `Add ...` / `Remove ...` / `Fix ...` / `Update ...` / `Switch ...` などを使う。
+- `Fix 1Password key selection for Git commit signing` くらいの簡潔さを目安にする。
+- 内容が分かる短い件名にする。必要がなければ body は書かない。
 - AI / Agent / ツール名は書かない。
 
 良い例:
 
-- 1.7.0 のソースを追加
-- 最近の Xcode でビルドできるように修正
-- commit 署名ルールを追加
+- Add git commit skill setup to bootstrap
+- Remove unused zsh helpers
+- Switch Claude Code to native install in bootstrap
 - Fix null handling in payment service
 
 悪い例:
 
-- 修正しました
-- AIで修正しました
-- Cursorで修正しました
+- Fix
+- Add stuff
+- Update files
+- Apply AI changes
+- Update code with Cursor
 - Updated code
 
 ## 署名確認

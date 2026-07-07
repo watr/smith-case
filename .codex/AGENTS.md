@@ -8,3 +8,8 @@
 
 ### Git hooks
 - repository に署名検証用の pre-push hook がある場合は有効化して使うこと
+
+### Branch workflow
+- version 番号の付いた作業では、対象 version の branch 上で作業すること
+- main で version branch より先行して作業しないこと
+- 作業開始前に現在 branch を確認し、必要なら対象 version branch に切り替えてから変更すること
