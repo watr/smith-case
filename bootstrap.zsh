@@ -307,6 +307,61 @@ else
 fi
 
 ###############################################################################
+# 💤 LAZYGIT CONFIGURATION
+###############################################################################
+
+if command -v lazygit >/dev/null 2>&1; then
+  lazygit_config_dir="${HOME}/Library/Application Support/lazygit"
+  lazygit_config="${lazygit_config_dir}/config.yml"
+
+  if [ ! -d "${lazygit_config_dir}" ]; then
+    mkdir -p "${lazygit_config_dir}"
+  fi
+
+  if [ ! -f "${lazygit_config}" ]; then
+    cat > "${lazygit_config}" <<'EOF'
+git:
+  overrideGpg: true
+EOF
+    log "Created lazygit config with git.overrideGpg enabled."
+  elif grep -Eq '^[[:space:]]*overrideGpg:[[:space:]]*true[[:space:]]*$' "${lazygit_config}"; then
+    log "lazygit git.overrideGpg already enabled."
+  else
+    lazygit_config_tmp="${lazygit_config}.tmp"
+    if grep -Eq '^[[:space:]]*overrideGpg:' "${lazygit_config}"; then
+      awk '
+        /^[[:space:]]*overrideGpg:[[:space:]]*/ {
+          sub(/overrideGpg:.*/, "overrideGpg: true")
+        }
+        { print }
+      ' "${lazygit_config}" > "${lazygit_config_tmp}"
+    else
+      awk '
+        BEGIN { inserted = 0 }
+        /^git:[[:space:]]*$/ && inserted == 0 {
+          print
+          print "  overrideGpg: true"
+          inserted = 1
+          next
+        }
+        { print }
+        END {
+          if (inserted == 0) {
+            print ""
+            print "git:"
+            print "  overrideGpg: true"
+          }
+        }
+      ' "${lazygit_config}" > "${lazygit_config_tmp}"
+    fi
+    mv "${lazygit_config_tmp}" "${lazygit_config}"
+    log "Enabled lazygit git.overrideGpg."
+  fi
+else
+  log "lazygit not found. Skipped lazygit configuration."
+fi
+
+###############################################################################
 # 🔐 GIT USER CONFIGURATION WITH GITHUB
 ###############################################################################
 
