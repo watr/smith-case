@@ -180,6 +180,19 @@ function peek() {
     tee /dev/tty
 }
 
+# 🔹 ledgit
+# Open lazygit with the terminal window title set to the current repository.
+function ledgit() {
+    local repo
+
+    repo=$(git rev-parse --show-toplevel 2>/dev/null)
+    repo=${repo:t}
+    [ -z "$repo" ] && repo=${PWD:t}
+
+    printf '\033]0;%s\007' "lazygit: ${repo}"
+    command lazygit "$@"
+}
+
 # Reload Zsh configuration (~/.zshrc)
 # Usage:
 #   % reload          # Reload the current Zsh configuration
