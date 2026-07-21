@@ -180,6 +180,36 @@ function peek() {
     tee /dev/tty
 }
 
+# 🔹 md2html
+# Convert a GitHub Flavored Markdown file to a standalone HTML file.
+# Requirements:
+#   - pandoc
+# Set `pagetitle` in the Markdown's YAML metadata to customize the browser title.
+# Without it, Pandoc uses the input file name.
+function md2html() {
+    if [ $# -ne 1 ]; then
+        echo "usage:\n  md2html markdown_file" >&2
+        return 1
+    fi
+
+    if ! command -v pandoc >/dev/null 2>&1; then
+        echo "md2html: pandoc is not installed. Run bootstrap.zsh first." >&2
+        return 1
+    fi
+
+    if [ ! -f "$1" ]; then
+        echo "md2html: file not found: $1" >&2
+        return 1
+    fi
+
+    pandoc "$1" \
+        --from=gfm \
+        --standalone \
+        --embed-resources \
+        --css="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css" \
+        -o "${1:r}.html"
+}
+
 # 🔹 ledgit
 # Open lazygit with the terminal window title set to the current repository.
 function ledgit() {
