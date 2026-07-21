@@ -300,10 +300,18 @@ install_with_prompt "Codex" "npm install -g @openai/codex" "codex"
 
 brewfile="$script_dir/Brewfile"
 if [ -f "$brewfile" ]; then
-  log "Installing packages from $brewfile ..."
+  log "Installing formulae from $brewfile ..."
   brew bundle --file="$brewfile"
 else
   log "No Brewfile found at $brewfile (skipped)."
+fi
+
+brewfile_casks="$script_dir/Brewfile.casks"
+if [ -f "$brewfile_casks" ]; then
+  log "Installing missing casks from $brewfile_casks without upgrading installed casks ..."
+  brew bundle --file="$brewfile_casks" --no-upgrade
+else
+  log "No Brewfile.casks found at $brewfile_casks (skipped)."
 fi
 
 ###############################################################################

@@ -6,6 +6,10 @@ A portable case of (dev) tools, dotfiles and scripts for quickly setting up my m
 % ./bootstrap.zsh
 ```
 
+The bootstrap installs command-line tools from `Brewfile` and missing GUI
+applications from `Brewfile.casks` without upgrading installed casks. It also
+links the repository-managed `.zshrc` to `~/.zshrc`.
+
 ## Agent configuration
 
 `bootstrap.zsh` links shared agent configuration from this repository:
